@@ -1,0 +1,32 @@
+{
+  "name": "md-previewer",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "compile": "bun run compile:linux && bun run compile:arm && bun run compile:win && bun run compile:mac && bun run compile:mac-arm",
+    "compile:linux": "bun build --compile --target=bun-linux-x64 ./index.ts --outfile ./bin/md-previewer",
+    "compile:arm": "bun build --compile --target=bun-linux-arm64 ./index.ts --outfile ./bin/md-previewer-arm",
+    "compile:win": "bun build --compile --target=bun-windows-x64 ./index.ts --outfile ./bin/md-previewer-win",
+    "compile:mac": "bun build --compile --target=bun-darwin-x64 ./index.ts --outfile ./bin/md-previewer-mac",
+    "compile:mac-arm": "bun build --compile --target=bun-darwin-arm64 ./index.ts --outfile ./bin/md-previewer-mac-arm"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@biomejs/biome": "^1.8.3",
+    "@shikijs/rehype": "^1.11.1",
+    "autoprefixer": "^10.4.19",
+    "bun-types": "^1.1.20",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-katex": "^7.0.0",
+    "rehype-slug": "^6.0.0",
+    "rehype-stringify": "^10.0.0",
+    "remark-gfm": "^4.0.0",
+    "remark-math": "^6.0.0",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.0",
+    "typescript": "^5.2.2",
+    "unified": "^11.0.5",
+    "zod": "^3.23.8",
+    "neovim": "^5.1.0"
+  }
+}
