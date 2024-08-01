@@ -8,6 +8,7 @@ import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
 import remarkRehype from 'remark-rehype'
 import rehypeSlug from 'rehype-slug'
+import rehypeHighlight from 'rehype-highlight'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeKatex from 'rehype-katex'
 import rehypeStringify from 'rehype-stringify'
@@ -61,6 +62,9 @@ export const parseMarkdownToHtml = async (markdown: string) => {
 				className: ['anchor']
 			}
 		})
+    .use(rehypeHighlight, {
+      plainText: ['mermaid']
+    })
 		.use(rehypeKatex)
 		.use(rehypeStringify)
 		.process(markdown)
@@ -170,6 +174,8 @@ let watcher: chokidar.FSWatcher
 const filePath = path.resolve(args.get(Arguments.FILE) as string);
 const dirPath = path.dirname(filePath);
 watcher = chokidar.watch(dirPath, { persistent: true })
+
+fs.writeFileSync('/tmp/md-previewer-tmp/filePath.txt', path.dirname(filePath))
 
 watcher.on('change', handleFileChange)
 
