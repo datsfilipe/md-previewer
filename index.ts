@@ -115,12 +115,12 @@ if (args.size > 1 && args.has(Arguments.HELP)) {
 }
 
 if (args.has(Arguments.HELP)) {
-  print.text('Usage: md-previewer --file=path/to/file.md', Color.White)
+  print.text('Usage: md-previewer --file=path/to/file.md', Color.Blue)
   print.blankLine()
   print.text('Flags:', Color.Blue)
   print.blankLine()
   print.block('--help', 'Show this help message', Color.Magenta)
-  print.block('--file', 'Path to the markdown file to preview', Color.Magenta)
+  print.block('--file', 'Path to the markdown file to preview', Color.Blue)
   process.exit(0)
 }
 
@@ -139,23 +139,23 @@ const execute = async () => {
       process.exit(1)
     }
   } else {
-    if (!isQuiet) print.text('[PREVIEWER] No file specified', Color.White)
+    if (!isQuiet) print.text('[PREVIEWER] No file specified', Color.Blue)
     process.exit(1)
   }
 }
 
 let isExecuting = false;
 const handleFileChange = async (path: string) => {
-  if (!isQuiet) print.text(`[PREVIEWER] Change detected on ${path}`, Color.White);
+  if (!isQuiet) print.text(`[PREVIEWER] Change detected on ${path}`, Color.Blue);
 
   if (isExecuting) {
-    if (!isQuiet) print.text('[PREVIEWER] Skipping file change, already executing...', Color.White);
+    if (!isQuiet) print.text('[PREVIEWER] Skipping file change, already executing...', Color.Blue);
     return;
   }
 
   isExecuting = true;
   try {
-    if (!isQuiet) print.text('[PREVIEWER] File changed, updating preview...', Color.White);
+    if (!isQuiet) print.text('[PREVIEWER] File changed, updating preview...', Color.Blue);
     await execute();
   } finally {
     isExecuting = false;
