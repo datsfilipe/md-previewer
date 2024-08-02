@@ -8,9 +8,6 @@ import { execSync } from 'node:child_process'
 
 import { Color, print } from './term-colors'
 
-// @ts-expect-error css is not a module
-import markdownRetro from 'markdown-retro/css/retro.css'
-
 const markdownFilePath = fs.readFileSync(path.resolve('/tmp/md-previewer-tmp/filePath.txt'), 'utf8')
 const fileToWatch = path.resolve('/tmp/md-previewer-tmp/index.html')
 const port = 8080
@@ -50,7 +47,6 @@ const watcher = chokidar.watch(fileToWatch, { persistent: true });
 const server = http.createServer((req, res) => {
   if (req.url === '/') {
     res.writeHead(200, { 'Content-Type': 'text/html' })
-    const cssContent = fs.readFileSync(path.resolve(markdownRetro.toString()))
     const htmlContent = fs.readFileSync(fileToWatch, 'utf8')
     const htmlContentWithCorrectImageSrc = htmlContent.replace(/src="([^"]+)"/g, (_, src) => `src="${correctImageSrc(src)}"`)
     const finalHtml = injectScriptIntoHtml(`
@@ -68,7 +64,6 @@ const server = http.createServer((req, res) => {
         </head>
         <body>
           <style>
-            ${cssContent}
             code {
               background: none !important;
             }
