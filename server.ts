@@ -8,6 +8,9 @@ import { execSync } from 'node:child_process'
 
 import { Color, print } from './term-colors'
 
+// @ts-expect-error css is not a module
+import styles from './styles.css'
+
 const port = 8080
 
 let isQuiet = false
@@ -68,6 +71,7 @@ const watcher = chokidar.watch(fileToWatch, { persistent: true });
 const server = http.createServer((req, res) => {
   if (req.url === '/') {
     res.writeHead(200, { 'Content-Type': 'text/html' })
+    const stylesContent = fs.readFileSync(styles.toString(), 'utf8')
     const htmlContent = fs.readFileSync(fileToWatch, 'utf8')
     const htmlContentWithCorrectImageSrc = htmlContent.replace(/src="([^"]+)"/g, (_, src) => `src="${correctImageSrc(src)}"`)
     const finalHtml = injectScriptIntoHtml(`
@@ -88,6 +92,7 @@ const server = http.createServer((req, res) => {
             code {
               background: none !important;
             }
+            ${stylesContent}
           </style>
           <article class="markdown-body" style="max-width: 100%;">
             ${htmlContentWithCorrectImageSrc}
