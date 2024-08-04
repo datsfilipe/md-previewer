@@ -8,8 +8,6 @@ import { execSync } from 'node:child_process'
 
 import { Color, print } from './term-colors'
 
-const markdownFilePath = fs.readFileSync(path.resolve('/tmp/md-previewer-tmp/filePath.txt'), 'utf8')
-const fileToWatch = path.resolve('/tmp/md-previewer-tmp/index.html')
 const port = 8080
 
 let isQuiet = false
@@ -35,13 +33,36 @@ const script = `
 `;
 
 const injectScriptIntoHtml = (html: string, script: string) => html.replace('</body>', `<script>${script}</script></body>`)
-const correctImagePath = (relativeToMarkdownFilePath: string) => {
-  return ''
-}
+
+const fileToWatch = path.resolve('/tmp/md-previewer-tmp/index.html')
+const markdownFilePath = fs.readFileSync(path.resolve('/tmp/md-previewer-tmp/filePath.txt'), 'utf8')
+
+const correctImagePath = (relativeToMarkdownFilePath: string): string => {
+  const absolutePath = path.join(markdownFilePath, relativeToMarkdownFilePath);
+  return `/images${absolutePath}`;
+};
+
 const correctImageSrc = (src: string) => {
-  if (src.startsWith('http')) return src
-  return correctImagePath(src)
-}
+  if (src.startsWith('http')) return src;
+  return correctImagePath(src);
+};
+
+const serveFile = (res: http.ServerResponse, filePath: string, contentType: string) => {
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        res.writeHead(404);
+        res.end('File not found');
+      } else {
+        res.writeHead(500);
+        res.end('Server error');
+      }
+    } else {
+      res.writeHead(200, { 'Content-Type': contentType });
+      res.end(content);
+    }
+  });
+};
 
 const watcher = chokidar.watch(fileToWatch, { persistent: true });
 const server = http.createServer((req, res) => {
@@ -83,6 +104,19 @@ const server = http.createServer((req, res) => {
     `, script)
 
     res.end(finalHtml)
+  } else if (req.url?.startsWith('/images/')) {
+    const imagePath = req.url.slice(7);
+    const ext = path.extname(imagePath).toLowerCase();
+    let contentType = 'application/octet-stream';
+    
+    if (ext === '.png') contentType = 'image/png';
+    else if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+    else if (ext === '.gif') contentType = 'image/gif';
+    
+    serveFile(res, imagePath, contentType);
+  } else {
+    res.writeHead(404);
+    res.end('Not found');
   }
 })
 
