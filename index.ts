@@ -167,8 +167,16 @@ const handleFileChange = async (path: string) => {
 };
 
 await execute();
-const serverPath = path.join(__dirname, './server.ts')
-const server = child_process.spawn('bun', ['run', serverPath, isQuiet ? '--quiet' : ''], { stdio: 'inherit' })
+const serverBinaryName = process.platform === 'win32' ? 'md-previewer-server.exe' : 'md-previewer-server'
+const serverBinaryPath = path.join(__dirname, 'bin', serverBinaryName)
+
+let serverProcess;
+if (fs.existsSync(serverBinaryPath)) {
+  serverProcess = child_process.spawn(serverBinaryPath, isQuiet ? ['--quiet'] : [], { stdio: 'inherit' })
+} else {
+  const serverPath = path.join(__dirname, 'server.ts')
+  serverProcess = child_process.spawn('bun', ['run', serverPath, isQuiet ? '--quiet' : ''], { stdio: 'inherit' })
+}
 
 let watcher: chokidar.FSWatcher
 const filePath = path.resolve(args.get(Arguments.FILE) as string);
@@ -180,7 +188,7 @@ fs.writeFileSync('/tmp/md-previewer-tmp/filePath.txt', path.dirname(filePath))
 watcher.on('change', handleFileChange)
 
 process.on('SIGINT', () => {
-  server.kill()
+  serverProcess.kill()
   watcher.close()
   process.exit(0)
 })

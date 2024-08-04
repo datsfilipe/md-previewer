@@ -4,11 +4,11 @@
   "type": "module",
   "scripts": {
     "compile": "bun run compile:linux && bun run compile:arm && bun run compile:win && bun run compile:mac && bun run compile:mac-arm",
-    "compile:linux": "bun build --compile --target=bun-linux-x64 ./index.ts --outfile ./bin/md-previewer",
-    "compile:arm": "bun build --compile --target=bun-linux-arm64 ./index.ts --outfile ./bin/md-previewer-arm",
-    "compile:win": "bun build --compile --target=bun-windows-x64 ./index.ts --outfile ./bin/md-previewer-win",
-    "compile:mac": "bun build --compile --target=bun-darwin-x64 ./index.ts --outfile ./bin/md-previewer-mac",
-    "compile:mac-arm": "bun build --compile --target=bun-darwin-arm64 ./index.ts --outfile ./bin/md-previewer-mac-arm"
+    "compile:linux": "bun build --compile --target=bun-linux-x64 ./index.ts --outfile ./bin/md-previewer && bun build --compile --target=bun-linux-x64 ./server.ts --outfile ./bin/md-previewer-server",
+    "compile:arm": "bun build --compile --target=bun-linux-arm64 ./index.ts --outfile ./bin/md-previewer-arm && bun build --compile --target=bun-linux-arm64 ./server.ts --outfile ./bin/md-previewer-server-arm",
+    "compile:win": "bun build --compile --target=bun-windows-x64 ./index.ts --outfile ./bin/md-previewer-win.exe && bun build --compile --target=bun-windows-x64 ./server.ts --outfile ./bin/md-previewer-server.exe",
+    "compile:mac": "bun build --compile --target=bun-darwin-x64 ./index.ts --outfile ./bin/md-previewer-mac && bun build --compile --target=bun-darwin-x64 ./server.ts --outfile ./bin/md-previewer-server-mac",
+    "compile:mac-arm": "bun build --compile --target=bun-darwin-arm64 ./index.ts --outfile ./bin/md-previewer-mac-arm && bun build --compile --target=bun-darwin-arm64 ./server.ts --outfile ./bin/md-previewer-server-mac-arm"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
