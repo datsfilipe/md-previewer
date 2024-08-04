@@ -3,15 +3,16 @@ import chokidar from 'chokidar'
 import http from 'node:http'
 import path from 'node:path'
 import WebSocket from 'ws'
-import os from 'node:os'
-import { execSync } from 'node:child_process'
 
+import { correctImageSrc, getTMPDir, injectScriptIntoHtml, openWindow, scriptForWebSocket } from './helpers'
 import { Color, print } from './term-colors'
 
 // @ts-expect-error css is not a module
 import styles from './styles.css'
 
 const port = 8080
+const tmpDir = getTMPDir()
+const fileToWatch = path.resolve(tmpDir, 'md-previewer-tmp/index.html')
 
 let isQuiet = false
 process.argv.forEach(arg => {
@@ -19,36 +20,6 @@ process.argv.forEach(arg => {
     isQuiet = true
   }
 })
-
-const script = `
-  function reloadPage() {
-    location.reload();
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    const socket = new WebSocket('ws://localhost:8080');
-    socket.onmessage = function(event) {
-      if (event.data === 'reload') {
-        reloadPage();
-      }
-    };
-  });
-`;
-
-const injectScriptIntoHtml = (html: string, script: string) => html.replace('</body>', `<script>${script}</script></body>`)
-
-const fileToWatch = path.resolve('/tmp/md-previewer-tmp/index.html')
-const markdownFilePath = fs.readFileSync(path.resolve('/tmp/md-previewer-tmp/filePath.txt'), 'utf8')
-
-const correctImagePath = (relativeToMarkdownFilePath: string): string => {
-  const absolutePath = path.join(markdownFilePath, relativeToMarkdownFilePath);
-  return `/images${absolutePath}`;
-};
-
-const correctImageSrc = (src: string) => {
-  if (src.startsWith('http')) return src;
-  return correctImagePath(src);
-};
 
 const serveFile = (res: http.ServerResponse, filePath: string, contentType: string) => {
   fs.readFile(filePath, (err, content) => {
@@ -106,7 +77,7 @@ const server = http.createServer((req, res) => {
           </script>
         </body>
       </html>
-    `, script)
+    `, scriptForWebSocket)
 
     res.end(finalHtml)
   } else if (req.url?.startsWith('/images/')) {
@@ -132,17 +103,6 @@ wss.on('connection', (ws) => {
     ws.send('reload');
   });
 });
-
-const openWindow = (url: string) => {
-  const platform = os.platform()
-  if (platform === 'darwin') {
-    execSync(`open ${url}`)
-  } else if (platform === 'win32') {
-    execSync(`start ${url}`)
-  } else {
-    execSync(`xdg-open ${url}`)
-  }
-}
 
 setTimeout(() => {
   if (!isQuiet) print.text(`Opening browser...`, Color.White)

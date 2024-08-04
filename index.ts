@@ -2,75 +2,13 @@ import fs from 'node:fs'
 import path from 'node:path'
 import child_process from 'node:child_process'
 
-import { unified } from 'unified'
-import remarkParse from 'remark-parse'
-import remarkMath from 'remark-math'
-import remarkGfm from 'remark-gfm'
-import remarkRehype from 'remark-rehype'
-import rehypeSlug from 'rehype-slug'
-import rehypeHighlight from 'rehype-highlight'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypeKatex from 'rehype-katex'
-import rehypeStringify from 'rehype-stringify'
+import { getTMPDir, parseMarkdownToHtml } from './helpers'
 
 import chokidar from 'chokidar'
 
 import { Color, print } from './term-colors'
 
-export const readMarkdownFiles = (dir: string): string[] => {
-	const files = []
-	const items = fs.readdirSync(dir)
-
-	for (const item of items) {
-		const itemPath = path.join(dir, item)
-		const stats = fs.statSync(itemPath)
-
-		if (stats.isDirectory()) {
-			files.push(...readMarkdownFiles(itemPath))
-		} else if (item.endsWith('.md')) {
-			files.push(itemPath)
-		}
-	}
-
-	return files
-}
-
-export const writeFile = (filePath: string, data: unknown) => {
-	const dir = path.dirname(filePath)
-
-	if (!fs.existsSync(dir)) {
-		fs.mkdirSync(dir, { recursive: true })
-	}
-
-	const jsonObject = JSON.stringify(data, null, 2)
-	const jsFileContents = `export default ${jsonObject}`
-	fs.writeFileSync(filePath, jsFileContents, {
-		encoding: 'utf8'
-	})
-}
-
-export const parseMarkdownToHtml = async (markdown: string) => {
-	const result = await unified()
-		.use(remarkParse)
-		.use(remarkGfm)
-		.use(remarkMath)
-		.use(remarkRehype)
-		.use(rehypeSlug)
-		.use(rehypeAutolinkHeadings, {
-			behavior: 'wrap',
-			properties: {
-				className: ['anchor']
-			}
-		})
-    .use(rehypeHighlight, {
-      plainText: ['mermaid']
-    })
-		.use(rehypeKatex)
-		.use(rehypeStringify)
-		.process(markdown)
-
-	return result.value.toString()
-}
+const tmpDir = getTMPDir()
 
 enum Arguments {
   HELP = 'help',
@@ -136,8 +74,8 @@ const execute = async () => {
   if (args.has(Arguments.FILE)) {
     if (fs.existsSync(filePath)) {
       const html = await parseMarkdownToHtml(fs.readFileSync(filePath, 'utf8'))
-      fs.mkdirSync('/tmp/md-previewer-tmp', { recursive: true })
-      fs.writeFileSync('/tmp/md-previewer-tmp/index.html', html)
+      fs.mkdirSync(`${tmpDir}/md-previewer-tmp`, { recursive: true })
+      fs.writeFileSync(`${tmpDir}/md-previewer-tmp/index.html`, html)
     } else {
       console.error(`File not found: ${filePath}`)
       process.exit(1)
@@ -183,7 +121,7 @@ const filePath = path.resolve(args.get(Arguments.FILE) as string);
 const dirPath = path.dirname(filePath);
 watcher = chokidar.watch(dirPath, { persistent: true })
 
-fs.writeFileSync('/tmp/md-previewer-tmp/filePath.txt', path.dirname(filePath))
+fs.writeFileSync(`${tmpDir}/md-previewer-tmp/filePath.txt`, path.dirname(filePath))
 
 watcher.on('change', handleFileChange)
 
