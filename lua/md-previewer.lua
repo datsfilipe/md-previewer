@@ -77,7 +77,7 @@ local function get_binary_path()
 	end
 
 	local plugin_path = debug.getinfo(1, "S").source:sub(2):match("(.*/)"):sub(1, -5)
-	return plugin_path .. "../bin/" .. binary_name
+	return plugin_path .. "bin/" .. binary_name
 end
 
 local function check_version()
@@ -147,12 +147,16 @@ function mdPreviewer.preview()
 	start_job(bufnr)
 end
 
+function mdPreviewer.version()
+	print(check_version())
+end
+
 function mdPreviewer.setup(user_config)
 	config = vim.tbl_extend("force", config, user_config or {})
 
 	vim.api.nvim_create_user_command("MdPreviewer", mdPreviewer.preview, {})
 	vim.api.nvim_create_user_command("MdPreviewerStop", mdPreviewer.stop, {})
-	vim.api.nvim_create_user_command("MdPreviewerVersion", print(check_version()), {})
+	vim.api.nvim_create_user_command("MdPreviewerVersion", mdPreviewer.version, {})
 
 	vim.api.nvim_create_autocmd("BufUnload", {
 		pattern = "*.md",
