@@ -44,6 +44,10 @@ use {
 }
 ```
 
+### Troubleshooting
+
+- If you're not using `bun` to compile the binaries, you might need to set them as executables. For example, on Linux you can do `chmod +x /path/to/lazy/md-previewer/bin/*`. On other platforms you might want to search and see how it works.
+
 ## Development
 
 It's as any bun project, just run `bun run dev --file=path/to/file.md` to preview a file. `bun compile` will generate the binaries.
