@@ -86,24 +86,6 @@ const execute = async () => {
   }
 }
 
-let isExecuting = false;
-const handleFileChange = async (path: string) => {
-  if (!isQuiet) print.text(`[PREVIEWER] Change detected on ${path}`, Color.Blue);
-
-  if (isExecuting) {
-    if (!isQuiet) print.text('[PREVIEWER] Skipping file change, already executing...', Color.Blue);
-    return;
-  }
-
-  isExecuting = true;
-  try {
-    if (!isQuiet) print.text('[PREVIEWER] File changed, updating preview...', Color.Blue);
-    await execute();
-  } finally {
-    isExecuting = false;
-  }
-};
-
 await execute();
 const serverBinaryPath = getServerBinaryPath()
 
