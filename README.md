@@ -2,6 +2,10 @@
 
 This binary helps you preview markdown files in the web with reloading support while watching for changes.
 
+## Demo
+
+![demo](./assets/preview.gif)
+
 ## Usage
 
 ```sh
