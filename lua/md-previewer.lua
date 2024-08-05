@@ -15,15 +15,31 @@ local function err(msg)
 	vim.notify(msg, vim.log.levels.ERROR, { title = "md-previewer.nvim" })
 end
 
-local function ensure_executable(file_path)
+local function ensure_executables(dir_path)
 	if vim.fn.has("unix") == 1 then
-		local stat = vim.loop.fs_stat(file_path)
-		if stat and bit.band(stat.mode, 73) == 0 then
-			local cmd = string.format("chmod +x '%s'", file_path)
-			local result = os.execute(cmd)
-			if result ~= 0 then
-				err("Failed to set executable permissions for " .. file_path)
-				return false
+		local handle = vim.loop.fs_scandir(dir_path)
+		if not handle then
+			err("Failed to scan directory: " .. dir_path)
+			return false
+		end
+
+		while true do
+			local name, type = vim.loop.fs_scandir_next(handle)
+			if not name then
+				break
+			end
+
+			if type == "file" then
+				local file_path = dir_path .. "/" .. name
+				local stat = vim.loop.fs_stat(file_path)
+				if stat and bit.band(stat.mode, 73) == 0 then
+					local cmd = string.format("chmod +x '%s'", file_path)
+					local result = os.execute(cmd)
+					if result ~= 0 then
+						err("Failed to set executable permissions for " .. file_path)
+						return false
+					end
+				end
 			end
 		end
 	end
@@ -70,8 +86,9 @@ local function start_job(bufnr)
 		return
 	end
 
-	if not ensure_executable(binary_path) then
-		err("Failed to set executable permissions for the binary")
+	local dir_path = binary_path:match("(.*)/")
+	if not ensure_executables(dir_path) then
+		err("Failed to set executable permissions for binaries")
 		return
 	end
 
