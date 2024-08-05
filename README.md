@@ -44,7 +44,7 @@ use {
 
 ## Development
 
-It's as any bun project, just run `bun ./index.ts --file=path/to/file.md` to preview a file. Tip: `bun compile` will generate the binaries, if the `bin` dir exists, `index.ts` will look for the compiled server instead of the `server.ts`.
+It's as any bun project, just run `bun run dev --file=path/to/file.md` to preview a file. `bun compile` will generate the binaries.
 
 - Neovim Plugin:
 

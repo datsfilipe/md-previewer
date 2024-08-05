@@ -90,7 +90,9 @@ await execute();
 const serverBinaryPath = getServerBinaryPath()
 
 let serverProcess;
-if (fs.existsSync(serverBinaryPath)) {
+const isDev = process.env.DEV_MODE === 'true'
+
+if (!isDev) {
   serverProcess = child_process.spawn(serverBinaryPath, isQuiet ? ['--quiet'] : [], { stdio: 'inherit' })
 } else {
   const serverPath = path.join(__dirname, 'server.ts')

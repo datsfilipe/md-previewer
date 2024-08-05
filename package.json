@@ -3,6 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
+    "dev": "DEV_MODE=true bun index.ts",
     "compile": "bun run compile:linux && bun run compile:arm && bun run compile:win && bun run compile:mac && bun run compile:mac-arm",
     "compile:linux": "bun build --compile --target=bun-linux-x64 ./index.ts --outfile ./bin/md-previewer && bun build --compile --target=bun-linux-x64 ./server.ts --outfile ./bin/md-previewer-server",
     "compile:arm": "bun build --compile --target=bun-linux-arm64 ./index.ts --outfile ./bin/md-previewer-arm && bun build --compile --target=bun-linux-arm64 ./server.ts --outfile ./bin/md-previewer-server-arm",
