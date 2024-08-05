@@ -22,7 +22,8 @@ md-previewer --file=path/to/file.md
   'datsfilipe/md-previewer',
   cmd = 'MdPreviewer',
   ft = 'markdown',
-  build = 'bun install && bun compile',
+  -- this is for compiling the binaries from the latest release
+  build = ":lua dofile(vim.fn.stdpath('data') .. '/lazy/md-previewer/lua/build.lua')",
   opts = {
     quiet = true, -- default is false but rn it has no real usage :0
   },
@@ -33,6 +34,7 @@ use {
   'datsfilipe/md-previewer',
   cmd = 'MdPreviewer',
   ft = 'markdown',
+  -- this is for compiling the binaries with bun
   run = 'bun install && bun compile',
   config = function()
     require('md-previewer').setup({
