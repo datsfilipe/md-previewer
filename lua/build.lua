@@ -62,10 +62,6 @@ local function main()
 			if not success then
 				print("Error downloading " .. binary .. ": " .. err)
 			else
-				-- Make the file executable (Unix-like systems only)
-				if vim.fn.has("unix") == 1 then
-					os.execute("chmod +x " .. output.filename)
-				end
 				print("Successfully downloaded " .. binary)
 			end
 		else
