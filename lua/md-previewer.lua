@@ -154,9 +154,9 @@ end
 function mdPreviewer.setup(user_config)
 	config = vim.tbl_extend("force", config, user_config or {})
 
-	vim.api.nvim_create_user_command("MdPreviewer", mdPreviewer.preview, {})
-	vim.api.nvim_create_user_command("MdPreviewerStop", mdPreviewer.stop, {})
-	vim.api.nvim_create_user_command("MdPreviewerVersion", mdPreviewer.version, {})
+	vim.api.nvim_create_user_command("MdPreviewer", "lua require('md-previewer').preview()", {})
+	vim.api.nvim_create_user_command("MdPreviewerStop", "lua require('md-previewer').stop()", {})
+	vim.api.nvim_create_user_command("MdPreviewerVersion", "lua require('md-previewer').version()", {})
 
 	vim.api.nvim_create_autocmd("BufUnload", {
 		pattern = "*.md",
