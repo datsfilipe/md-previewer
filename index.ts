@@ -118,11 +118,41 @@ if (fs.existsSync(serverBinaryPath)) {
 let watcher: chokidar.FSWatcher
 const filePath = path.resolve(args.get(Arguments.FILE) as string);
 const dirPath = path.dirname(filePath);
-watcher = chokidar.watch(dirPath, { persistent: true })
+
+watcher = chokidar.watch(dirPath, {
+  persistent: true,
+  usePolling: true,
+  interval: 100,
+  ignoreInitial: true,
+  awaitWriteFinish: {
+    stabilityThreshold: 100,
+    pollInterval: 100
+  }
+})
 
 fs.writeFileSync(`${tmpDir}/md-previewer-tmp/filePath.txt`, path.dirname(filePath))
 
-watcher.on('change', handleFileChange)
+const debounce = (func: Function, delay: number) => {
+  let timer: Timer | null = null;
+  return (...args: any[]) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};
+
+const debouncedHandleFileChange = debounce(async (path: string) => {
+  if (!isQuiet) print.text(`[PREVIEWER] Change detected on ${path}`, Color.Blue);
+  try {
+    if (!isQuiet) print.text('[PREVIEWER] File changed, updating preview...', Color.Blue);
+    await execute();
+  } catch (error) {
+    console.error('[PREVIEWER] Error updating preview:', error);
+  }
+}, 300);
+
+watcher.on('change', debouncedHandleFileChange);
 
 process.on('SIGINT', () => {
   serverProcess.kill()

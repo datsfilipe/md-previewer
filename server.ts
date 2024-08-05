@@ -38,7 +38,17 @@ const serveFile = (res: http.ServerResponse, filePath: string, contentType: stri
   });
 };
 
-const watcher = chokidar.watch(fileToWatch, { persistent: true });
+const watcher = chokidar.watch(fileToWatch, {
+  persistent: true,
+  usePolling: true,
+  interval: 100,
+  ignoreInitial: true,
+  awaitWriteFinish: {
+    stabilityThreshold: 100,
+    pollInterval: 100
+  }
+});
+
 const server = http.createServer((req, res) => {
   if (req.url === '/') {
     res.writeHead(200, { 'Content-Type': 'text/html' })
@@ -97,11 +107,17 @@ const server = http.createServer((req, res) => {
 })
 
 const wss = new WebSocket.Server({ server });
-wss.on('connection', (ws) => {
-  watcher.on('change', () => {
-    if (!isQuiet) print.text('[SERVER] Reloading page...', Color.Yellow)
-    ws.send('reload');
+watcher.on('change', () => {
+  if (!isQuiet) print.text('[SERVER] File changed, notifying clients...', Color.Yellow)
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send('reload');
+    }
   });
+});
+
+wss.on('connection', () => {
+  if (!isQuiet) print.text('[SERVER] New WebSocket connection', Color.Green);
 });
 
 setTimeout(() => {
