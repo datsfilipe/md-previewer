@@ -22,7 +22,7 @@ md-previewer --file=path/to/file.md
   'datsfilipe/md-previewer',
   cmd = 'MdPreviewer',
   ft = 'markdown',
-  -- this is for compiling the binaries from the latest release
+  -- this is for downloading the binaries from the latest release
   build = ":lua dofile(vim.fn.stdpath('data') .. '/lazy/md-previewer/lua/build.lua')",
   opts = {
     quiet = true, -- default is false but rn it has no real usage :0
