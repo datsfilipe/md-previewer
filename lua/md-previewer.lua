@@ -12,7 +12,7 @@ mdPreviewer.config = config
 local job = nil
 
 local function err(msg)
-	vim.notify(msg, vim.log.levels.ERROR, { title = "md-previewer.nvim" })
+	vim.notify(msg, vim.log.levels.ERROR, { title = "md-previewer" })
 end
 
 local function ensure_executables(dir_path)
@@ -32,7 +32,7 @@ local function ensure_executables(dir_path)
 			if type == "file" then
 				local file_path = dir_path .. "/" .. name
 				local stat = vim.loop.fs_stat(file_path)
-				if stat and bit.band(stat.mode, 73) == 0 then
+				if stat and bit.band(stat.mode, 73) == 0 then -- Check if file is not executable (73 = 111 in octal)
 					local cmd = string.format("chmod +x '%s'", file_path)
 					local result = os.execute(cmd)
 					if result ~= 0 then
@@ -77,7 +77,19 @@ local function get_binary_path()
 	end
 
 	local plugin_path = debug.getinfo(1, "S").source:sub(2):match("(.*/)"):sub(1, -5)
-	return plugin_path .. "bin/" .. binary_name
+	return plugin_path .. "../bin/" .. binary_name
+end
+
+local function check_version()
+	local bin_dir = vim.fn.stdpath("data") .. "/lazy/md-previewer/bin"
+	local version_file = bin_dir .. "/version_info.txt"
+	local file = io.open(version_file, "r")
+	if file then
+		local version = file:read("*all")
+		file:close()
+		return version
+	end
+	return nil
 end
 
 local function start_job(bufnr)
@@ -148,6 +160,13 @@ function mdPreviewer.setup(user_config)
 			end
 		end,
 	})
+
+	local version = check_version()
+	if version then
+		print("Markdown Previewer version: " .. version)
+	else
+		print("Markdown Previewer version information not available")
+	end
 end
 
 return mdPreviewer

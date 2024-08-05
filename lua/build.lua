@@ -33,12 +33,40 @@ local function get_asset_url(assets, name)
 	return nil
 end
 
+local function read_version_info(file_path)
+	local file = io.open(file_path, "r")
+	if file then
+		local version = file:read("*all")
+		file:close()
+		return version
+	end
+	return nil
+end
+
+local function write_version_info(file_path, version)
+	local file = io.open(file_path, "w")
+	if file then
+		file:write(version)
+		file:close()
+		return true
+	end
+	return false
+end
+
 local function main()
 	print("Fetching latest release info...")
 	local release = get_latest_release()
 
 	local bin_dir = Path:new(vim.fn.stdpath("data"), "lazy", "md-previewer", "bin")
 	bin_dir:mkdir({ parents = true })
+
+	local version_file = bin_dir:joinpath("version_info.txt")
+	local current_version = read_version_info(version_file.filename)
+
+	if current_version == release.tag_name then
+		print("Already up to date. Version: " .. current_version)
+		return
+	end
 
 	local binaries = {
 		"md-previewer",
@@ -67,6 +95,12 @@ local function main()
 		else
 			print("Warning: " .. binary .. " not found in the release assets.")
 		end
+	end
+
+	if write_version_info(version_file.filename, release.tag_name) then
+		print("Updated version info: " .. release.tag_name)
+	else
+		print("Failed to write version info")
 	end
 
 	print("Build complete!")
