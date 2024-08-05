@@ -18,8 +18,36 @@ export const getTMPDir = () => {
   return process.env.TMPDIR || process.env.TMP || process.env.TEMP || '/tmp';
 };
 
+export const getPlatform = () => {
+  return os.platform()
+}
+
+export const getArch = () => {
+  return os.arch()
+}
+
+export const getServerBinaryPath = () => {
+  const platform = getPlatform()
+  const arch = getArch()
+  if (platform === 'darwin') {
+    if (arch.startsWith('arm')) {
+      return path.resolve(__dirname, './bin/md-previewer-server-mac-arm')
+    } else {
+      return path.resolve(__dirname, './bin/md-previewer-server-mac')
+    }
+  } else if (platform.startsWith('win')) {
+    return path.resolve(__dirname, './bin/md-previewer-server-win.exe')
+  } else {
+    if (arch.startsWith('arm')) {
+      return path.resolve(__dirname, './bin/md-previewer-server-arm')
+    } else {
+      return path.resolve(__dirname, './bin/md-previewer-server')
+    }
+  }
+}
+
 export const openWindow = (url: string) => {
-  const platform = os.platform()
+  const platform = getPlatform()
   if (platform === 'darwin') {
     execSync(`open ${url}`)
   } else if (platform === 'win32') {

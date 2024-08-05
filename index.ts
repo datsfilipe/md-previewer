@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import child_process from 'node:child_process'
 
-import { getTMPDir, parseMarkdownToHtml } from './helpers'
+import { getServerBinaryPath, getTMPDir, parseMarkdownToHtml } from './helpers'
 
 import chokidar from 'chokidar'
 
@@ -105,8 +105,7 @@ const handleFileChange = async (path: string) => {
 };
 
 await execute();
-const serverBinaryName = process.platform === 'win32' ? 'md-previewer-server.exe' : 'md-previewer-server'
-const serverBinaryPath = path.join(__dirname, 'bin', serverBinaryName)
+const serverBinaryPath = getServerBinaryPath()
 
 let serverProcess;
 if (fs.existsSync(serverBinaryPath)) {
