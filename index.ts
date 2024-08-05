@@ -150,7 +150,7 @@ const debouncedHandleFileChange = debounce(async (path: string) => {
   } catch (error) {
     console.error('[PREVIEWER] Error updating preview:', error);
   }
-}, 300);
+}, 500);
 
 watcher.on('change', debouncedHandleFileChange);
 
