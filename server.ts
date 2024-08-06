@@ -38,20 +38,12 @@ const serveFile = (res: http.ServerResponse, filePath: string, contentType: stri
   });
 };
 
-const watcher = chokidar.watch(fileToWatch, {
-  persistent: true,
-  usePolling: true,
-  interval: 100,
-  ignoreInitial: true,
-  awaitWriteFinish: {
-    stabilityThreshold: 100,
-    pollInterval: 100
-  }
-});
+const watcher = fs.watch(fileToWatch, { persistent: true });
 
 const server = http.createServer((req, res) => {
   if (req.url === '/') {
     res.writeHead(200, { 'Content-Type': 'text/html' })
+    const clientJsContent = fs.readFileSync(path.resolve(__dirname, 'client.js'), 'utf8')
     const stylesContent = fs.readFileSync(styles.toString(), 'utf8')
     const htmlContent = fs.readFileSync(fileToWatch, 'utf8')
     const htmlContentWithCorrectImageSrc = htmlContent.replace(/src="([^"]+)"/g, (_, src) => `src="${correctImageSrc(src)}"`)
@@ -60,13 +52,6 @@ const server = http.createServer((req, res) => {
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <!-- katex -->
-          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
-          <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
-          <!-- code block -->
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/github-dark.min.css">
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
-          <script>hljs.highlightAll();</script>
         </head>
         <body>
           <style>
@@ -79,11 +64,7 @@ const server = http.createServer((req, res) => {
             ${htmlContentWithCorrectImageSrc}
           </article>
           <script type="module">
-            import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-            mermaid.initialize({ startOnLoad: false });
-            await mermaid.run({
-              querySelector: '.language-mermaid',
-            });
+            ${clientJsContent}
           </script>
         </body>
       </html>

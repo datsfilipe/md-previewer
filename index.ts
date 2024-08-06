@@ -4,8 +4,6 @@ import child_process from 'node:child_process'
 
 import { getServerBinaryPath, getTMPDir, parseMarkdownToHtml } from './helpers'
 
-import chokidar from 'chokidar'
-
 import { Color, print } from './term-colors'
 
 const tmpDir = getTMPDir()
@@ -99,21 +97,10 @@ if (!isDev) {
   serverProcess = child_process.spawn('bun', ['run', serverPath, isQuiet ? '--quiet' : ''], { stdio: 'inherit' })
 }
 
-let watcher: chokidar.FSWatcher
 const filePath = path.resolve(args.get(Arguments.FILE) as string);
 const dirPath = path.dirname(filePath);
 
-watcher = chokidar.watch(dirPath, {
-  persistent: true,
-  usePolling: true,
-  interval: 100,
-  ignoreInitial: true,
-  awaitWriteFinish: {
-    stabilityThreshold: 100,
-    pollInterval: 100
-  }
-})
-
+const watcher = fs.watch(dirPath, { persistent: true })
 fs.writeFileSync(`${tmpDir}/md-previewer-tmp/filePath.txt`, path.dirname(filePath))
 
 const debounce = (func: Function, delay: number) => {
