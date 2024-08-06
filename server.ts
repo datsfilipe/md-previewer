@@ -1,10 +1,9 @@
 import fs from 'node:fs'
-import chokidar from 'chokidar'
 import http from 'node:http'
 import path from 'node:path'
 import WebSocket from 'ws'
 
-import { correctImageSrc, getTMPDir, injectScriptIntoHtml, openWindow, scriptForWebSocket } from './helpers'
+import { correctImageSrc, getTMPDir, openWindow } from './helpers'
 import { Color, print } from './term-colors'
 
 // @ts-expect-error css is not a module
@@ -47,7 +46,7 @@ const server = http.createServer((req, res) => {
     const stylesContent = fs.readFileSync(styles.toString(), 'utf8')
     const htmlContent = fs.readFileSync(fileToWatch, 'utf8')
     const htmlContentWithCorrectImageSrc = htmlContent.replace(/src="([^"]+)"/g, (_, src) => `src="${correctImageSrc(src)}"`)
-    const finalHtml = injectScriptIntoHtml(`
+    res.end(`
       <!DOCTYPE html lang="en">
         <head>
           <meta charset="utf-8">
@@ -68,9 +67,7 @@ const server = http.createServer((req, res) => {
           </script>
         </body>
       </html>
-    `, scriptForWebSocket)
-
-    res.end(finalHtml)
+    `);
   } else if (req.url?.startsWith('/images/')) {
     const imagePath = req.url.slice(7);
     const ext = path.extname(imagePath).toLowerCase();

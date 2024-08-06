@@ -112,22 +112,6 @@ export const parseMarkdownToHtml = async (markdown: string) => {
 	return result.value.toString()
 }
 
-export const scriptForWebSocket = `
-  function reloadPage() {
-    location.reload();
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    const socket = new WebSocket('ws://localhost:8080');
-    socket.onmessage = function(event) {
-      if (event.data === 'reload') {
-        reloadPage();
-      }
-    };
-  });
-`;
-
-export const injectScriptIntoHtml = (html: string, script: string) => html.replace('</body>', `<script>${script}</script></body>`)
 const markdownFilePath = fs.readFileSync(path.resolve(getTMPDir(), 'md-previewer-tmp/filePath.txt'), 'utf8')
 
 export const correctImagePath = (relativeToMarkdownFilePath: string): string => {

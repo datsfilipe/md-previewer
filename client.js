@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 });
 
-// lazy load katex
 if (document.querySelector('.math')) {
   const link = document.createElement('link');
   link.rel = 'stylesheet';
@@ -24,7 +23,6 @@ if (document.querySelector('.math')) {
   document.head.appendChild(script);
 }
 
-// lazy load mermaid
 if (document.querySelector('.language-mermaid')) {
   const script = document.createElement('script');
   script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
@@ -34,7 +32,6 @@ if (document.querySelector('.language-mermaid')) {
   document.head.appendChild(script);
 }
 
-// lazy load highlight.js
 if (document.querySelector('pre code')) {
   const link = document.createElement('link');
   link.rel = 'stylesheet';
@@ -48,3 +45,16 @@ if (document.querySelector('pre code')) {
   };
   document.head.appendChild(script);
 }
+
+function reloadPage() {
+  location.reload();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const socket = new WebSocket('ws://localhost:8080');
+  socket.onmessage = function(event) {
+    if (event.data === 'reload') {
+      reloadPage();
+    }
+  };
+});
