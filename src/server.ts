@@ -4,10 +4,7 @@ import path from 'node:path'
 import WebSocket from 'ws'
 
 import { correctImageSrc, getTMPDir, openWindow } from './helpers'
-import { Color, print } from './term-colors'
-
-// @ts-expect-error css is not a module
-import styles from './styles.css'
+import { Color, print } from './print'
 
 const port = 8080
 const tmpDir = getTMPDir()
@@ -23,13 +20,8 @@ process.argv.forEach(arg => {
 const serveFile = (res: http.ServerResponse, filePath: string, contentType: string) => {
   fs.readFile(filePath, (err, content) => {
     if (err) {
-      if (err.code === 'ENOENT') {
-        res.writeHead(404);
-        res.end('File not found');
-      } else {
-        res.writeHead(500);
-        res.end('Server error');
-      }
+      res.writeHead(err.code === 'ENOENT' ? 404 : 500);
+      res.end(err.code === 'ENOENT' ? 'File not found' : 'Server error');
     } else {
       res.writeHead(200, { 'Content-Type': contentType });
       res.end(content);
@@ -42,8 +34,8 @@ const watcher = fs.watch(fileToWatch, { persistent: true });
 const server = http.createServer((req, res) => {
   if (req.url === '/') {
     res.writeHead(200, { 'Content-Type': 'text/html' })
-    const clientJsContent = fs.readFileSync(path.resolve(__dirname, 'client.js'), 'utf8')
-    const stylesContent = fs.readFileSync(styles.toString(), 'utf8')
+    const clientJsContent = fs.readFileSync(path.resolve(__dirname, './scripts/client.js'), 'utf8')
+    const stylesContent = fs.readFileSync(path.resolve(__dirname, './styles/styles.css'), 'utf8')
     const htmlContent = fs.readFileSync(fileToWatch, 'utf8')
     const htmlContentWithCorrectImageSrc = htmlContent.replace(/src="([^"]+)"/g, (_, src) => `src="${correctImageSrc(src)}"`)
     res.end(`

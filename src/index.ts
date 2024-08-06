@@ -4,7 +4,7 @@ import child_process from 'node:child_process'
 
 import { getServerBinaryPath, getTMPDir, parseMarkdownToHtml } from './helpers'
 
-import { Color, print } from './term-colors'
+import { Color, print } from './print'
 
 const tmpDir = getTMPDir()
 
